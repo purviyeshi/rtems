@@ -43,10 +43,9 @@
  *
  * @{
  */
-
-#if defined(__riscv_atomic) && __riscv_xlen == 64
+#if ((defined(__riscv_atomic) && __riscv_xlen == 64) && (RISCV_ENABLE_MPFS_E51_SUPPORT != 1))
 #define CPU_PER_CPU_CONTROL_SIZE 48
-#elif defined(__riscv_atomic) && __riscv_xlen == 32
+#elif ((defined(__riscv_atomic) && __riscv_xlen == 32)  && (RISCV_ENABLE_MPFS_E51_SUPPORT != 1))
 #define CPU_PER_CPU_CONTROL_SIZE 32
 #elif __riscv_xlen == 64
 #define CPU_PER_CPU_CONTROL_SIZE 32
@@ -341,7 +340,7 @@ typedef struct {
 } RISCV_PLIC_regs;
 
 typedef struct {
-#ifdef __riscv_atomic
+#if (defined(__riscv_atomic) && (RISCV_ENABLE_MPFS_E51_SUPPORT != 1))
   uint64_t clear_reservations;
   uint32_t reserved_for_alignment_of_interrupt_frame[ 2 ];
 #endif

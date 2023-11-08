@@ -192,7 +192,7 @@
 .endm
 
 .macro CLEAR_RESERVATIONS REG
-#ifdef __riscv_atomic
+#if (defined(__riscv_atomic) && (RISCV_ENABLE_MPFS_E51_SUPPORT != 1))
 	/*
 	 * Clear reservations, see also RISC-V User-Level ISA V2.3, comment in
 	 * section 8.2 "Load-Reserved/Store-Conditional Instructions".

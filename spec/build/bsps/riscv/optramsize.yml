@@ -11,6 +11,7 @@ copyrights:
 default:
 - enabled-by:
   - riscv/frdme310arty
+  - riscv/mpfs64imac
   - riscv/mpfs64imafdc
   value: 0x10000000
 - enabled-by: riscv/griscv
