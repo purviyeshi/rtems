@@ -7,7 +7,7 @@ copyrights:
 - Copyright (C) 2022 On-Line Applications Research Corporation (OAR)
 default:
 - enabled-by: riscv/mpfs64imafdc
-  value: bsp/mpfs-dtb.h
+  value: bsp/mpfs-u54-dtb.h
 - enabled-by: riscv/kendrytek210
   value: bsp/kendryte-k210-dtb.h
 - enabled-by: true
