@@ -1,0 +1,3 @@
+[submodule "hart-software-services"]
+	path = hart-software-services
+	url = https://github.com/purviyeshi/hart-software-services.git
