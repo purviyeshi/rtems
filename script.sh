@@ -5,7 +5,7 @@ BIN_FILE="/home/purva/quick-start/src/rtems/hart-software-services/tools/hss-pay
 BAUD_RATE=115200
 EMMC_DEVICE="/dev/sdb"
 PASSWORD="2003"
-SCREEN_NAME="beagleV-Fire"
+# SCREEN_NAME="beagleV-Fire"
 
 
 # Function to use expect for automating sudo password entry
@@ -22,9 +22,11 @@ run_with_sudo() {
 # command -v screen >/dev/null 2>&1 || { echo >&2 "screen command is required but it's not installed. Aborting."; exit 1; }
 # command -v dd >/dev/null 2>&1 || { echo >&2 "dd command is required but it's not installed. Aborting."; exit 1; }
 
+
 # List USB Serial Devices
 echo "Listing USB serial devices..."
 SERIAL_DEVICE=$(ls /dev | grep -i ttyusb | head -n 1)
+
 
 if [ -z "$SERIAL_DEVICE" ]; then
     echo "No USB serial devices found. Aborting."
@@ -38,7 +40,7 @@ fi
 echo "Modifying permissions for ${SERIAL_DEVICE}..."
 run_with_sudo "sudo chmod 777 ${SERIAL_DEVICE}"
 
-# --------------------------- OK ^^^^^^ --------------------------- upto give permission --------------------------------
+# ------------------------------------------------------------------------------------------------------------
 
 # Start a terminal session with screen and wait for reset
 echo "Starting terminal session with ${SERIAL_DEVICE} at baud rate ${BAUD_RATE}. Please press reset on the BeagleV-Fire board now..."
@@ -51,7 +53,6 @@ sleep 3  # Adjust the sleep duration as necessary
 
 echo "Press button..."
 sleep 10
-
 
 # Find the screen session
 SCREEN_SESSION=$(screen -ls | grep -o '[0-9]*\.beagleV-Fire')
