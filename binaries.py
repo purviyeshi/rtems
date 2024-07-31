@@ -1,7 +1,46 @@
 # This python script generate binary files of the whole testsuits 
 
+
 import os
 import shutil
+
+
+# Define the path to the testsuites directory
+testsuites_path = os.path.abspath('build/riscv/beaglevfire/testsuites')
+
+# Define the output file for directory names
+directory_file = 'directory_names.txt'
+# Define the output file for executable file paths
+exe_list_file = 'exe_paths.txt'
+
+# Get directory names
+directories = []
+with open(directory_file, 'r') as file:
+    directories = [line.strip() for line in file]
+
+# Open the output file for executable file paths in write mode
+with open(exe_list_file, 'w') as file:
+    exe_counter = 1  # Initialize a counter for numbering executables
+    # Iterate through each directory name
+    for directory in directories:
+        dir_path = os.path.join(testsuites_path, directory)
+        if os.path.isdir(dir_path):
+            # Write the directory name to the file
+            file.write(f"Directory: {dir_path}\n")
+            # List the .exe files in the directory
+            exe_files = [item for item in os.listdir(dir_path) if item.endswith('.exe')]
+            if exe_files:
+                # Write the full path of each .exe file with a unique number
+                for exe_file in exe_files:
+                    exe_path = os.path.abspath(os.path.join(dir_path, exe_file))
+                    file.write(f"{exe_counter}: {exe_path}\n")
+                    exe_counter += 1
+            else:
+                file.write("  No .exe files found\n")
+            file.write("\n")
+
+print(f"Executable file paths have been written to {exe_list_file}")
+
 
 def generate_bin_from_exe(exe_path, elf_path, hss_yaml_content, hss_payload_gen_dir, payload_output):
     print(f"Processing: {exe_path}")
@@ -93,4 +132,5 @@ payloads:
     generate_bin_from_exe(exe_path, elf_path, hss_yaml_content, hss_payload_gen_dir, payload_output)
 
 print(f"All .bin files have been generated and stored in their respective directories under {testsuites_dir}")
+
 
