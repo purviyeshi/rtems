@@ -1,0 +1,96 @@
+# This python script generate binary files of the whole testsuits 
+
+import os
+import shutil
+
+def generate_bin_from_exe(exe_path, elf_path, hss_yaml_content, hss_payload_gen_dir, payload_output):
+    print(f"Processing: {exe_path}")
+    
+    if not os.path.isfile(exe_path):
+        print(f"Error: {exe_path} does not exist. Skipping...")
+        return
+
+    # Convert .exe to .elf
+    convert_command = f"riscv-rtems6-objcopy {exe_path} {elf_path}"
+    conversion_status = os.system(convert_command)
+    if conversion_status != 0:
+        print(f"Error: Failed to convert {exe_path} to {elf_path}. Skipping...")
+        return
+
+    # Copy .elf to hss-payload-generator directory
+    elf_dest_path = os.path.join(hss_payload_gen_dir, "test", os.path.basename(elf_path))
+    try:
+        shutil.copyfile(elf_path, elf_dest_path)
+    except FileNotFoundError as e:
+        print(f"Error: {e}. Skipping...")
+        return
+    except Exception as e:
+        print(f"Unexpected error: {e}. Skipping...")
+        return
+
+    # Edit hss.yaml file
+    yaml_path = os.path.join(hss_payload_gen_dir, "test/hss.yaml")
+    try:
+        with open(yaml_path, "w") as file:
+            file.write(hss_yaml_content)
+    except Exception as e:
+        print(f"Error: Failed to edit {yaml_path}. {e}")
+        return
+
+    # Generate payload
+    os.chdir(hss_payload_gen_dir)
+    generate_payload_command = f"./hss-payload-generator -c test/hss.yaml {payload_output}"
+    payload_status = os.system(generate_payload_command)
+    if payload_status != 0:
+        print(f"Error: Failed to generate {payload_output}. Skipping...")
+        return
+
+def ensure_dir_exists(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+        print(f"Created directory: {path}")
+
+# Define paths
+hss_payload_gen_dir = os.path.abspath("hart-software-services/tools/hss-payload-generator")
+output_bins_dir = os.path.abspath("output_bins")
+testsuites_dir = os.path.join(output_bins_dir, "testsuites")
+os.makedirs(testsuites_dir, exist_ok=True)
+
+# Read .exe paths from exe_paths.txt
+exe_paths_file = os.path.abspath('exe_paths.txt')
+exe_paths = []
+current_dir = None
+
+with open(exe_paths_file, 'r') as file:
+    for line in file:
+        if line.startswith('Directory:'):
+            # Extract the directory path
+            current_dir = line.strip().split('Directory: ')[1]
+            # Create the directory structure under testsuites
+            ensure_dir_exists(os.path.join(testsuites_dir, os.path.relpath(current_dir, start='/home/purva/quick-start/src/rtems/build/riscv/beaglevfire/testsuites')))
+        elif line.strip() and line[0].isdigit():
+            parts = line.strip().split(': ', 1)
+            if len(parts) == 2:
+                exe_paths.append((parts[1], current_dir))
+            else:
+                print(f"Skipping line due to unexpected format: {line}")
+
+# Process each .exe file
+for exe_counter, (exe_path, current_dir) in enumerate(exe_paths, 1):
+    exe_path = os.path.abspath(exe_path)
+    elf_path = exe_path.replace('.exe', '.elf')
+    
+    # Determine the output directory based on the current_dir
+    rel_dir = os.path.relpath(current_dir, start='/home/purva/quick-start/src/rtems/build/riscv/beaglevfire/testsuites')
+    target_dir = os.path.join(testsuites_dir, rel_dir)
+    payload_output = os.path.join(target_dir, f"{os.path.basename(elf_path).replace('.elf', '.bin')}")
+    
+    hss_yaml_content = f"""set-name: 'PolarFire-SoC-HSS::RTEMS'
+hart-entry-points: {{u54_1: '0x1000000000'}}
+payloads:
+  test/{os.path.basename(elf_path)}: {{exec-addr: '0x1000000000', owner-hart: u54_1, priv-mode: prv_m, skip-opensbi: true}}
+"""
+    generate_bin_from_exe(exe_path, elf_path, hss_yaml_content, hss_payload_gen_dir, payload_output)
+
+print(f"All .bin files have been generated and stored in their respective directories under {testsuites_dir}")
+

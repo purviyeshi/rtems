@@ -1,3 +1,5 @@
+# This python script generates a single binary file from single executive file
+
 import os
 import shutil
 
