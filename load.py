@@ -60,7 +60,11 @@ time.sleep(10)  # Wait for 10 seconds
 
 
 
-#reset code part
+
+
+
+## ----------------- reset code part ----------------- ##
+
 
 # Define HSS_HART_ALL constant
 HSS_HART_ALL = 5
