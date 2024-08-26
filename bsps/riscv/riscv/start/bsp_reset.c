@@ -31,7 +31,7 @@
 #include <bsp/bsp_reset.h>
 // #include <assert.h>
 #include <bsp/reset.h>
-#include <bsp/mss_sysreg1.h>
+#include <bsp/mss_sysreg.h>
 // #include "/home/purva/quick-start/src/rtems/bsps/riscv/riscv/include/bsp/mss_sysreg.h"
 
 __attribute__((__noreturn__)) static void HSS_reboot_cold_all(void)
